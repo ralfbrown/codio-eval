@@ -4,7 +4,7 @@ This project provides eval.py, an evaluation script which provides an approximat
 
 The enhancements over Codio's Standard Code Test are:
 - per-testcase points
-- per-testcase time limits
+- per-testcase time limits, with partial credit if just at/above the time limit
 - per-testcase control over whether to show difference between expected and actual output
 - per-testcase control over whether to show input if the output is incorrect
 - parallel evaluation if the test case is small enough
@@ -36,8 +36,53 @@ It is highly recommended that all of the testcase files and the wrapper script (
 
 ## Create/Adapt Wrapper Script
 
-The wrapper script is used to perform any pre-execution tasks such as compiling the student's submission or restoring any files the student should *not* change, and then invoke eval.py to perform the actual program runs and comparison of actual output against expected output.
-
+The wrapper script is used to perform any pre-execution tasks such as compiling the student's submission or restoring any files the student should *not* change, and then invoke eval.py to perform the actual program runs and comparison of actual output against expected output.  See .guides/*_example/eval.sh for sample wrapper scripts.
 
 ## Create Advanced Code Test Assessment
+
+To run the test cases you have set up above, you will need to add one or more Advanced Code Test assessments to the guide page for the coding problem.
+
+Configure each assessment as follows:
+
+- "General" tab: name and instructions as desired
+
+- "Execution" tab:
+
+-- Language = Custom
+
+-- Command = "bash .guides/secure/{SUBDIR}/eval.sh"
+
+-- Timeout = 3 * sum of per-testcase timeouts or higher (the script re-runs a test case twice if it takes between 100% and 110% of the specified time limit)
+
+- "Grading" tab: **Enable** "Allow Partial Points".  Set points, options, and rationale as desired.
+
+- "Parameters" tab: normally left blank
+
+- "Metadata" tab: fill out as usual
+
+- "Files" tab: be sure to include .guides/secure/eval.py, .guides/secure/{SUBDIR}/*, as well as "run.sh" and "input" in the problem's subdirectory under the workspace top-level directory (if using the optional Run or Debug options detailed below).
+
+## Optional: Run on Custom Input
+
+Create a file named "input" in the subdirectory containing the code files to be edited by the student, and fill it with whatever default value is appropriate (such as the first example input described in the instructions).  Add an invocation like
+```
+{Run with custom input}(bash {subdir}/run.sh)
+```
+to the guide.
+
+## Optional: Configure Debugger
+
+In the menu Tools|Debugger Settings, create a new entry named e.g. Example, and set it to run the student's code with file "{subdir}/input".  Then add
+```
+{Debug with custom input|debugger}(Example)
+```
+to the guide.
+
+## Optional: Code Visualizer
+
+If the code for the problem is in a supported language, can be set up such that it can be run without input (some examples follow), and is sufficiently small (fewer than about 300 program steps), you can add a button to run the student's code under the visualizer.  Add
+```
+[Code Visualizer](open_tutor {subdir}/MainFile.ext)
+```
+to the guide.
 
