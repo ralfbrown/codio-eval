@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-## Copyright (c) 2022 Carnegie Mellon University
-## LastEdit: Ralf Brown 05nov2022
+## Copyright (c) 2022,2023 Carnegie Mellon University
+## LastEdit: Ralf Brown 29nov2023
 
 import os
 import sys
@@ -69,6 +69,10 @@ def feedback_file(infilename):
         fbname = infilename.replace('input','feedback')
         if os.path.exists(fbname):
             return fbname
+    elif 'in' in infilename:
+        fbname = infilename.replace('in','fb')
+        if os.path.exists(fbname):
+            return fbname
     return None
 
 def compare_output(out, ref):
@@ -81,6 +85,8 @@ def compare_output(out, ref):
 
 def colorize_diff(line):
     if line and CODIO_RUNNING:
+        if USE_HTML:
+            line = line.replace('&','&amp;').replace('<','&lt;').replace('>','&gt;')
         if line[0] == '-':
             return decorate(line,f"<span style='color:#701818;background:#FFE0E0'>","</span>")
         elif line[0] == '+':
@@ -136,25 +142,42 @@ def run_prog(result_text,points,timeout,prog,infile,reffile,show_diff,show_input
                     errtype = "StackError"
                 elif "Null" in stderr_text or "null" in stderr_text or "NoneType" in stderr_text:
                     errtype = "NullPtr"
-                elif "ut of range" in stderr_text:
+                elif ".regex." in stderr_text or "Regex " in stderr_text:
+                    errtype = "RegexError"
+                elif "ut of range" in stderr_text or "OutOfBounds" in stderr_text:
                     errtype = "IndexError"
+                elif "ArithmeticExc" in stderr_text:
+                    errtype = "MathError"
+                elif "IOException" in stderr_text:
+                    errtype = "IOError"
+                elif "NumberFormatExc" in stderr_text:
+                    errtype = "BadNumber"
+                elif "IllegalArg" in stderr_text:
+                    errtype = "ArgError"
+                elif "FileNotFound" in stderr_text:
+                    errtype = "FileNotFound"
+                elif "NoSuchElement" in stderr_text:
+                    errtype = "IterateErr"
                 elif "TypeError" in stderr_text:
                     errtype = "TypeError"
                 elif "AttributeError" in stderr_text:
                     errtype = "AttribErr"
                 elif "NameError" in stderr_text:
                     errtype = "NameError"
+                elif "KeyError:" in stderr_text:
+                    errtype = "KeyError"
                 else:
                     errtype = f"RunError {result.returncode}"
                 result_text += decorate(errtype,before,after) + f" in {round(elapsed,2)}s"
                 result_text = decorate(result_text,"<B>","</B>")
                 if show_input:
                     stdout_text = result.stdout.decode('utf-8')
-                    outtext = limit_length(stdout_text)
-                    result_text += decorate(outtext,"<br/><pre>\n","\n</pre>")
+                    if stdout_text:
+                        outtext = limit_length(stdout_text)
+                        result_text += decorate(outtext,"<br/><pre>","</pre>\n")
                 if show_diff:
                     errtext = limit_length(stderr_text)
-                    result_text += decorate(errtext,"<br/><pre>\n","\n</pre>")
+                    result_text += decorate(errtext,"<br/><pre>","</pre>\n")
             elif reffile != infile:
                 outtext = result.stdout.decode('utf-8').split('\n')
                 if len(outtext) > 1 and outtext[-1] == '':
