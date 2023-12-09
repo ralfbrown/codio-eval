@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ## Copyright (c) 2022,2023 Carnegie Mellon University
-## LastEdit: Ralf Brown 29nov2023
+## LastEdit: Ralf Brown 09dec2023
 
 import os
 import sys
@@ -221,7 +221,7 @@ def run_prog(result_text,points,timeout,prog,infile,reffile,show_diff,show_input
                     intext = None
                     try:
                         with open(infile,'r') as inf:
-                            intext = inf.read().split('\n')
+                            intext = limit_length(inf.read()).split('\n')
                             if len(intext) > 1 and intext[-1] == '':
                                 intext = intext[:-1]
                     except:
